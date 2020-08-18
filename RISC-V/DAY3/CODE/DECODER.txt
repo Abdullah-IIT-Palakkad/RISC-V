@@ -1,0 +1,118 @@
+`timescale 1ns / 1ps
+
+module DECODER(input [31:0] inst,output [4:0] rs1,rs2,rd,output reg [63:0] immediate,output reg [3:0] AluFunc,output reg bsel,wdsel,mwr,werf);
+    wire [6:0] opcode,func7,func6;
+    wire [2:0] func3;   
+    assign rs1 = inst[19:15];
+    assign rs2 = inst[24:20];
+    assign rd = inst[11:7];
+    assign opcode = inst[6:0];
+    assign func3 = inst[14:12];
+    assign func7 = inst[31:25];
+    assign func6 = inst[31:26];
+//  add, sub, ld, sd, addi, or, and, xor_i,
+//  slli, srli, srai
+//  jal, jalr    
+    
+//  bsel -> chooses between the inputs of R-type and I-type to be sent in the ALU
+//  wdsel -> take output of MEM or ALU
+//  mwr -> MEM write enable
+//  werf -> RF write enable
+    
+    always@(*) begin
+        case(opcode)
+            7'b0110011 : begin     // R - type
+                    if(func3 == 3'b000)begin   
+                        if(func7==7'b0000000)
+                            AluFunc = 4'b0000;      //ADD   -   add
+                        else if(func7==7'b0100000)
+                            AluFunc = 4'b0001;      //SUBSTRACT -   sub
+                    end
+                    else if(func3 == 3'b111)begin   //AND   -   and
+                        AluFunc = 4'b0010;
+                    end
+                    else if(func3 == 3'b110)begin   //OR    -   or
+                        AluFunc = 4'b0011;
+                    end
+                    bsel=0;
+                    wdsel=0;
+                    mwr = 0;
+                    werf=1;
+            end
+            7'b0010011 : begin     //I - type arithmetic
+                    if(func3 == 3'b000)begin   
+                        AluFunc = 4'b0000;          //ADD_I -   addi
+                        immediate = {{52{inst[31]}},inst[31:20]};
+                    end
+                    else if(func3 == 3'b100)begin   //XOR_I -   xori
+                        AluFunc = 4'b0100;
+                        immediate = {{52{inst[31]}},inst[31:20]};
+                    end
+                    else if(func3 == 3'b001)begin
+                        if (func6 == 6'b000000)
+                            AluFunc = 4'b0101;     //SLL_I -   slli
+                        immediate = {{58{inst[31]}},inst[25:20]};
+                    end
+                    else if(func3 == 3'b101)begin   
+                        if(func6 == 6'b000000)
+                            AluFunc = 4'b0110;      //SRL_I -   srli
+                        else if(func6 == 6'b010000) 
+                            AluFunc = 4'b0111;      //SRA_I -   srai
+                        immediate = {{58{inst[31]}},inst[25:20]};
+                    end
+                    bsel = 1;
+                    wdsel=0;
+                    mwr = 0;
+                    werf=1;
+            end
+            7'b0000011 : begin     //I - type load
+                    if(func3 == 3'b011)begin    //LOAD_DOUBLE   ld
+                        AluFunc = 0000;
+                    end
+                    bsel = 1;
+                    immediate = {{52{inst[31]}},inst[31:20]};
+                    wdsel = 1;
+                    mwr = 0;
+                    werf=1;   
+            end
+            7'b0100011 : begin     //S - type 
+                    if(func3 == 3'b111)begin
+                        immediate = {{52{inst[31]}},inst[31:26],inst[11:7]};
+                        wdsel = 0;
+                        bsel=1;
+                        AluFunc = 0000;
+                        mwr = 1;
+                        werf=0;
+                    end
+            end
+        endcase
+    end
+endmodule
+
+
+
+
+
+
+
+
+
+//    always@(*)begin
+//        if(opcode == 7'b0110011 && func3 == 0)begin
+//            if(func7 == 0) begin
+//                AluFunc = 4'b0000;
+//            end
+//            else if(func7 == 7'b0100000 )begin
+//                AluFunc = 4'b0001;
+//            end    
+//        end  
+//    end
+    
+//            
+//            
+//            7'b1100111 : begin     //SB - type
+//            end
+//            7'b0110111 : begin     //U - type
+//            end
+//            7'b1101111 : begin     //UJ - type
+//            end

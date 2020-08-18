@@ -1,0 +1,11 @@
+`timescale 1ns / 1ps
+
+module IM(input [63:0] pc,output [31:0] inst);
+
+    reg [31:0] data [31:0];
+    initial begin
+        $readmemb("C:\\Users\\student\\Desktop\\111801054\\project_2\\instr.txt",data);
+    end
+
+    assign inst = data[pc/4];
+endmodule

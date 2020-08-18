@@ -1,0 +1,12 @@
+`timescale 1ns / 1ps
+
+module tb();
+    wire [31:0] IF,EXE;
+    wire [4:0] WB;
+    wire [3:0] DEC;
+    reg clk = 0;
+    initial begin
+        forever #50 clk = ~clk;
+    end
+    main DUT( .clk(clk),.inst(IF),.func(DEC),.res(EXE),.wa(WB) );    
+endmodule

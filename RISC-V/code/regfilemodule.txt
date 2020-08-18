@@ -1,0 +1,26 @@
+`timescale 1ns / 1ps
+
+module REG_FILE(input clk,input [4:0] RA1, RA2, WA,input [31:0] WD,input W_EN,output [31:0] RD1,RD2);
+    
+    reg [31:0] reg_array [31:0];
+    integer file,i;
+    initial begin
+        file = $fopen("C:\\Users\\Abdullah Khan\\Desktop\\RISC-V_simulator\\RF.txt","r");
+        for(i=0;i<32;i=i+1)
+            $fscanf(file,"%b\n",reg_array[i]);
+        $fclose(file);
+    end
+    assign RD1 = reg_array[RA1];
+    assign RD2 = reg_array[RA2];
+        
+    always@(posedge clk) begin
+        if(W_EN==1) begin
+            reg_array[WA] = WD;
+            file = $fopen("C:\\Users\\Abdullah Khan\\Desktop\\RISC-V_simulator\\RF.txt","w");
+            for(i=0;i<32;i=i+1)
+                $fwrite(file,"%b\n",reg_array[i]);
+            $fclose(file);
+        end
+    end
+    
+endmodule

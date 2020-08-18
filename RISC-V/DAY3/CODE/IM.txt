@@ -1,0 +1,17 @@
+`timescale 1ns / 1ps
+
+module IM(input clk,input enable,output reg [31:0] inst);
+    integer pc;
+    reg [31:0] data [31:0];
+    initial begin
+        $readmemb("C:\\Users\\student\\Desktop\\111801001\\RISC-V\\instr.txt",data);
+        pc = 0;
+    end
+    always@(posedge clk ) begin
+        if(enable==1)begin
+            
+            inst = data[pc];
+            pc = pc+1;
+        end
+    end
+endmodule

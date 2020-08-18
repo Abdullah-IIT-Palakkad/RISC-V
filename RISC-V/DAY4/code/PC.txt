@@ -1,0 +1,21 @@
+`timescale 1ns / 1ps
+
+module PC(input clk,input en,input pcsel,input [63:0] branch,immed,output reg [63:0] pc);
+    reg psel = 0,flag = 0;
+    reg [63:0] i=1;
+    initial begin
+        pc = -1;
+    end
+    always@(posedge clk ) begin
+        if(psel || pcsel)
+            if(branch[0] == 1)begin
+                i = immed;end
+            else i = 1;
+        else     begin 
+            i = 1;
+            psel <= pcsel;
+        end
+        if (en)
+            pc <= pc+i;
+    end
+endmodule

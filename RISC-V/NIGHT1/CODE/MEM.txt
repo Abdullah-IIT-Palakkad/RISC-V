@@ -1,0 +1,29 @@
+`timescale 1ns / 1ps
+
+module MEM(
+input clk,
+input [63:0] addr,
+input [63:0]W,
+input mwr,
+output [63:0] out
+    );
+    reg [63:0] data [9:0];
+    integer file,i;
+    initial begin
+        file = $fopen("C:\\Users\\student\\Desktop\\111801054\\project_2\\memory.txt","r");
+        $readmemb("C:\\Users\\student\\Desktop\\111801054\\project_2\\memory.txt",data);
+        $fclose(file);
+    end
+    assign out = data[addr];
+    
+    always@(posedge clk) begin
+        if(mwr==1) begin
+            data[addr] = W;
+            file = $fopen("C:\\Users\\student\\Desktop\\111801054\\project_2\\memory.txt","w");
+            for(i=0;i<10;i=i+1)
+                $fwrite(file,"%b\n",data[i]);
+            $fclose(file);
+        end
+    end
+    
+endmodule

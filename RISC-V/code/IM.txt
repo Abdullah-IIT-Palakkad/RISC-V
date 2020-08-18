@@ -1,0 +1,17 @@
+`timescale 1ns / 1ps
+
+module IM(input clk,input enable,output reg [31:0] inst);
+    integer file,pc;
+    reg [31:0] data;
+    initial begin
+        file = $fopen("C:\\Users\\Abdullah Khan\\Desktop\\RISC-V_simulator\\inst.txt","r");
+        pc = 0;
+    end
+    always@(posedge clk ) begin
+        if(enable==1)begin
+            pc = pc+1;
+            $fscanf(file,"%b\n",data);
+            inst = data;
+        end
+    end
+endmodule

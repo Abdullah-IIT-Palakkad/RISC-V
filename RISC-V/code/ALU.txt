@@ -1,0 +1,10 @@
+`timescale 1ns / 1ps
+module ALU(input [31:0] A, B,input [3:0] op,output reg [31:0] result,output reg en);  
+    always@(*) begin
+        case(op)
+            4'b0000 : result <= A + B;
+            4'b0001 : result <= A - B;        
+        endcase
+        en = 1;
+    end
+endmodule

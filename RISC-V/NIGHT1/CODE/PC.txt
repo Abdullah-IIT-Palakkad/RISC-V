@@ -1,0 +1,24 @@
+`timescale 1ns / 1ps
+
+module PC(input clk,input en,input [1:0] pcsel,input [63:0] branch,immed,output reg [63:0] pc,output reg [63:0] pc_4);
+    reg psel = 0,flag = 0;
+    reg [63:0] i,pc2;
+    initial begin
+        pc = -4;
+    end
+    always@(posedge clk ) begin
+        if(psel || pcsel == 2'b01)
+            if(branch[0] == 1) pc2 = pc + {immed,1'b0};
+            else pc2 = pc + 4;
+        if(pcsel == 2'b10)
+            pc2 = branch;
+        else     
+            begin 
+                pc2 = pc + 4;
+                psel <= pcsel;
+            end
+        if (en)
+            pc = pc2;
+            pc_4 = pc + 4;
+    end
+endmodule
